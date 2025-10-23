@@ -5,6 +5,7 @@ resource "azurerm_container_registry" "cr" {
   sku                 = var.acr_registry_sku
 
   public_network_access_enabled = false
-  anonymous_pull_enabled        = true
-  network_rule_bypass_option    = "AzureServices"
+
+  anonymous_pull_enabled     = true
+  network_rule_bypass_option = "AzureServices"
 }

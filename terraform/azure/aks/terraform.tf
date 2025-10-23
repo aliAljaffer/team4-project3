@@ -11,7 +11,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     max_count            = var.max_count
     min_count            = var.min_count
     auto_scaling_enabled = true
+    vnet_subnet_id       = var.cluster_subnet_id
   }
+
 
   identity {
     type = "SystemAssigned"

@@ -26,3 +26,9 @@ variable "max_count" {
   type    = number
   default = 5
 }
+variable "cluster_subnet_id" {
+  type = string
+}
+variable "cluster_subnet_cidr" {
+  type = string
+}

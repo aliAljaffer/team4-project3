@@ -12,3 +12,9 @@ output "psql_info" {
     db_name = module.db.psql_database_name
   }
 }
+output "kv_uri" {
+  value = module.kv.vault_uri
+}
+output "aks_name" {
+  value = module.aks.aks_name
+}
