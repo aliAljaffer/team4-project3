@@ -1,0 +1,18 @@
+# Terraform
+terraform*/**/secrets*
+terraform*/**/.terraform*
+terraform*/**/!.example.*
+terraform*/**/*.tfstate*
+terraform*/**/*.tfvars
+terraform*/**/!terraform.example.tfvars
+terraform*/**/.DS_Store
+terraform*/**/*.sh
+terraform*/**/deadcode.tf
+terraform*/**/*.key
+terraform*/**/*.log
+!terraform*/azure/vm/custom_data/*.sh
+
+# Mac garbage
+.DS_Store
+**/**/*.config
+!*.example*
