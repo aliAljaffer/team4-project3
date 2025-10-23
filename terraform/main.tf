@@ -50,12 +50,14 @@ module "db" {
   db_subnet_id        = module.subnet.db_subnet_id
 }
 module "aks" {
-  source          = "./azure/aks"
-  rg_location     = var.location
-  resource_prefix = var.resource_prefix
-  rg_name         = module.rg.rg_name
-  node_rg         = "team4-nodes"
-  vm_size         = "Standard_A2_v2"
+  source              = "./azure/aks"
+  rg_location         = var.location
+  resource_prefix     = var.resource_prefix
+  rg_name             = module.rg.rg_name
+  node_rg             = "team4-nodes"
+  vm_size             = "Standard_A2_v2"
+  cluster_subnet_cidr = module.subnet.cluster_subnet_cidr
+  cluster_subnet_id   = module.subnet.cluster_subnet_id
 }
 
 module "acr" {

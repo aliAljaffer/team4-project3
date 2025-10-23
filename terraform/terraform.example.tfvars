@@ -1,0 +1,6 @@
+author_name = "AUTHOR NAME"
+location = "AZURE REGION/LOCATION"
+resource_prefix = "RESOURCE PREFIX (TEXT THAT GOES BEFORE EACH RESOURCE)"
+psql_admin_username = "PSQL ADMIN USERNAME HERE"
+psql_admin_password = "PSQL ADMIN PASSWORD HERE"
+subscription_id =  "SUBSCRIPTION ID HERE"
