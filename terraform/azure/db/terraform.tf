@@ -48,9 +48,6 @@ resource "azurerm_postgresql_flexible_server_database" "psql_database" {
   server_id = azurerm_postgresql_flexible_server.main_server.id
   collation = "en_US.utf8"
   charset   = "UTF8"
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 resource "azurerm_network_security_group" "sql_nsg" {
   name                = "${var.resource_prefix}-sql-nsg"
