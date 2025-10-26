@@ -15,6 +15,11 @@ terraform*/**/*.log
 # Backend
 backend/dist
 backend/node_modules
+
+# Frontend
+frontend/dist
+frontend/node_modules
+
 # Mac garbage
 .DS_Store
 **/**/*.config
