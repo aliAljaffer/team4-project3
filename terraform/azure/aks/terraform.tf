@@ -19,3 +19,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type = "SystemAssigned"
   }
 }
+
+resource "azurerm_kubernetes_cluster_node_pool" "example" {
+  name                  = "${var.resource_prefix}usernodepool"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
+  vm_size               = var.vm_size
+  node_count            = 2
+  auto_scaling_enabled  = true
+}
