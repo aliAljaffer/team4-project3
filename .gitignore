@@ -12,6 +12,9 @@ terraform*/**/*.key
 terraform*/**/*.log
 !terraform*/azure/vm/custom_data/*.sh
 
+# Backend
+backend/dist
+backend/node_modules
 # Mac garbage
 .DS_Store
 **/**/*.config
