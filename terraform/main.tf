@@ -25,7 +25,7 @@ module "nsg" {
   db_subnet_id            = module.subnet.db_subnet_id
   cluster_subnet_id       = module.subnet.cluster_subnet_id
   main_vnet_address_space = module.vnet.vnet_address_space
-  cluster_subnet_cidr     = one(toset(module.subnet.cluster_subnet_cidr))
+  cluster_subnet_cidr     = module.subnet.cluster_subnet_cidr
 }
 
 module "kv" {
@@ -68,4 +68,25 @@ module "acr" {
   acr_registry_name = var.acr_registry_name
   acr_registry_sku  = var.acr_registry_sku
   author            = var.author_name
+}
+
+module "rbac" {
+  source               = "./azure/rbac"
+  cr_id                = module.acr.cr_id
+  kubelet_object_id    = module.aks.kubelet_object_id
+  kubelet_principal_id = module.aks.kubelet_principal_id
+}
+
+module "pip" {
+  source          = "./azure/publicip"
+  rg_location     = var.location
+  resource_prefix = var.resource_prefix
+  rg_name         = module.rg.rg_name
+}
+
+module "storage" {
+  source          = "./azure/storage"
+  rg_location     = var.location
+  resource_prefix = var.resource_prefix
+  rg_name         = module.rg.rg_name
 }

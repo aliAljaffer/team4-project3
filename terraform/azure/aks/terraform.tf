@@ -20,8 +20,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 }
 
-resource "azurerm_kubernetes_cluster_node_pool" "example" {
-  name                  = "${var.resource_prefix}usernodepool"
+resource "azurerm_kubernetes_cluster_node_pool" "user_node_pool" {
+  name                  = "${var.resource_prefix}usernp"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.aks.id
   vm_size               = var.vm_size
   node_count            = 2

@@ -11,7 +11,7 @@ variable "psql_admin_password" {
 
 variable "psql_database_name" {
   type        = string
-  default     = "assignment3db"
+  default     = "project3db"
   description = "the name of the database"
 }
 

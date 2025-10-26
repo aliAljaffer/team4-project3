@@ -5,3 +5,7 @@ variable "cr_id" {
 variable "kubelet_object_id" {
   type = string
 }
+
+variable "kubelet_principal_id" {
+  type = string
+}

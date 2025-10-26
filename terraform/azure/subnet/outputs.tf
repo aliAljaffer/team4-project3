@@ -11,6 +11,6 @@ output "cluster_subnet_id" {
   value = azurerm_subnet.cluster_subnet.id
 }
 output "cluster_subnet_cidr" {
-  value = azurerm_subnet.cluster_subnet.address_prefixes
+  value = azurerm_subnet.cluster_subnet.address_prefixes[0]
 }
 
