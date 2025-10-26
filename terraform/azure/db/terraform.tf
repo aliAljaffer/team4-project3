@@ -34,6 +34,15 @@ resource "azurerm_postgresql_flexible_server" "main_server" {
     password_auth_enabled = true
   }
 }
+
+
+resource "azurerm_postgresql_flexible_server_configuration" "postgis" {
+  name      = "azure.extensions"
+  server_id = azurerm_postgresql_flexible_server.main_server.id
+  value     = "POSTGIS"
+}
+
+
 resource "azurerm_postgresql_flexible_server_database" "psql_database" {
   name      = var.psql_database_name
   server_id = azurerm_postgresql_flexible_server.main_server.id
