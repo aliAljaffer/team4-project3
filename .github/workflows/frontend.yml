@@ -1,0 +1,59 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+  pull_request:
+    paths:
+      - 'frontend/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️ Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️ Install dependencies
+      - name: Install dependencies
+        run: npm ci
+        working-directory: frontend
+
+      # 3️ Run tests
+      - name: Run tests
+        run: npm test --if-present
+        working-directory: frontend
+
+      # 4️ Azure Login (OIDC)
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # 5️ Login to Azure Container Registry (ACR)
+      - name: Log in to ACR
+        run: az acr login --name team4amazingregistry
+
+      # 6️ Build Docker image with commit tag
+      - name: Build Docker image
+        run: |
+          docker build -t team4amazingregistry.azurecr.io/frontend:${{ github.sha }} .
+          docker tag team4amazingregistry.azurecr.io/frontend:${{ github.sha }} team4amazingregistry.azurecr.io/frontend:latest
+        working-directory: frontend
+
+      # 7️ Push both tags to ACR
+      - name: Push Docker image (commit + latest)
+        run: |
+          docker push team4amazingregistry.azurecr.io/frontend:${{ github.sha }}
+          docker push team4amazingregistry.azurecr.io/frontend:latest
