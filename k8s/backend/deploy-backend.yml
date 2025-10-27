@@ -1,39 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deploy
-  namespace: backend
+  name: cl-be
   labels:
-    app: backend
+    app: cl-be
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: backend
+      app: cl-be
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 20%
   template:
     metadata:
       labels:
-        app: backend
+        app: cl-be
     spec:
       containers:
-        - name: backend
+        - name: backend-t4p3
           image: team4amazingregistry.azurecr.io/backend:v1
           ports:
             - containerPort: 8080
           envFrom:
             - configMapRef:
-                name: cm-backend
-            - secretRef:
-                name: secrets-backend
+                name: catus-locatus-cm-be
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /health
               port: 8080
             initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: 8080
-            initialDelaySeconds: 15
-            periodSeconds: 20
+            periodSeconds: 15
