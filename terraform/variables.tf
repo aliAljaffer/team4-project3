@@ -31,3 +31,15 @@ variable "acr_registry_name" {
   type    = string
   default = "team4amazingregistry"
 }
+variable "node_rg" {
+  type    = string
+  default = "team4-nodes"
+}
+variable "vm_size_system_pool" {
+  type    = string
+  default = "Standard_A2_v2"
+}
+variable "vm_size_user_pool" {
+  type    = string
+  default = "Standard_A2_v2"
+}
