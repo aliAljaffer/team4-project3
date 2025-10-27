@@ -1,0 +1,60 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Build Backend with Maven
+        run: mvn clean package -DskipTests
+        working-directory: backend
+
+      - name: Run Tests
+        run: mvn test
+        working-directory: backend
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to Azure Container Registry
+        run: az acr login -n ${{ secrets.ACR_NAME }}
+
+      - name: Build Docker Image
+        run: docker build -t ${{ secrets.ACR_NAME }}.azurecr.io/backend:${{ github.sha }} .
+        working-directory: backend
+
+      - name: Push Image to ACR
+        run: docker push ${{ secrets.ACR_NAME }}.azurecr.io/backend:${{ github.sha }}
+
+      - name: Upload Artifact (Optional)
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-image-tag
+          path: backend
