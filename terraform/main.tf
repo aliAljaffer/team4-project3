@@ -48,7 +48,8 @@ module "az_kv" {
   azure_storage_conn_string = module.az_storage.storage_account_conn_string
   azure_storage_container   = module.az_storage.container_name
   acr_login                 = module.az_acr.cr_link
-  app_id                    = module.az_rbac.app_id
+  app_principal_id          = module.az_rbac.app_principal_id
+
 }
 module "az_db" {
   source              = "./azure/db"
@@ -92,6 +93,7 @@ module "az_rbac" {
   k8s_namespace        = module.k8s_ns.app_ns
   k8s_service_account  = module.k8s_rbac.app_service_account_name
   main_vnet_id         = module.az_vnet.vnet_id
+  kv_id                = module.az_kv.kv_id
 }
 
 module "az_storage" {
@@ -133,7 +135,7 @@ module "k8s_secret" {
 
 module "k8s_rbac" {
   source         = "./k8s/rbac"
-  app_id         = module.az_rbac.app_id
+  app_client_id  = module.az_rbac.app_client_id
   app_ns         = module.k8s_ns.app_ns
   sa_name        = var.service_account_name
   depends_on     = [module.az_aks, module.aws_r53]
@@ -141,12 +143,13 @@ module "k8s_rbac" {
 }
 
 module "k8s_secretprovider" {
-  source     = "./k8s/secretprovider"
-  app_id     = module.az_rbac.app_id
-  app_ns     = module.k8s_ns.app_ns
-  kv_name    = module.az_kv.kv_name
-  secrets    = module.az_kv.secret_to_key
-  depends_on = [module.az_aks, module.az_kv, module.az_rbac]
+  source        = "./k8s/secretprovider"
+  app_id        = module.az_rbac.app_principal_id
+  app_ns        = module.k8s_ns.app_ns
+  kv_name       = module.az_kv.kv_name
+  secrets       = module.az_kv.secret_to_key
+  depends_on    = [module.az_aks, module.az_kv, module.az_rbac]
+  app_client_id = module.az_rbac.app_client_id
 }
 
 # =-=-=-=---=-=--=-=-=-=-=-=-=-= AWS

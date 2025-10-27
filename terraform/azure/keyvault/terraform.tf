@@ -27,10 +27,10 @@ resource "azurerm_key_vault" "kvault" {
 resource "azurerm_key_vault_access_policy" "catus_locatus_access" {
   key_vault_id = azurerm_key_vault.kvault.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.app_id
+  object_id    = var.app_principal_id # Principal ID
 
   secret_permissions = [
-    "Get",
+    "Get", "List"
   ]
 }
 
@@ -97,6 +97,10 @@ resource "azurerm_private_endpoint" "kv" {
     private_connection_resource_id = azurerm_key_vault.kvault.id
     is_manual_connection           = false
     subresource_names              = ["vault"]
+  }
+  private_dns_zone_group {
+    name                 = "kv-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.kv.id]
   }
 }
 

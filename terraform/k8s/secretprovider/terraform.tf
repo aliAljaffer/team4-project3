@@ -11,17 +11,14 @@ resource "kubernetes_manifest" "secret_provider_class" {
       parameters = {
         usePodIdentity       = "false"
         useVMManagedIdentity = "false"
-        clientID             = var.app_id
+        clientID             = var.app_client_id
         keyvaultName         = var.kv_name
         cloudName            = ""
-        objects = yamlencode({
-          array = [
-            for secret_name, _ in var.secrets : {
-              objectName = secret_name
-              objectType = "secret"
-            }
-          ]
-        })
+        objects = join("\n", concat(
+          ["array:"],
+          [for secret_name, _ in var.secrets : "  - |\n    objectName: ${secret_name}\n    objectType: secret"]
+        ))
+
         tenantId = data.azurerm_client_config.current.tenant_id
       }
       # Optional: Sync to K8s secret

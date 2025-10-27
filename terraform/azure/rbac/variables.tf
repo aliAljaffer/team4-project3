@@ -27,3 +27,6 @@ variable "k8s_namespace" {
 variable "main_vnet_id" {
   type = string
 }
+variable "kv_id" {
+  type = string
+}

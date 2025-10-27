@@ -1,4 +1,4 @@
-variable "app_id" {
+variable "app_client_id" {
   type = string
 }
 variable "app_ns" {

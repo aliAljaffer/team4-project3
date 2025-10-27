@@ -6,6 +6,9 @@ variable "secrets" {
 variable "app_id" {
   type = string
 }
+variable "app_client_id" {
+  type = string
+}
 variable "app_ns" {
   type = string
 }
