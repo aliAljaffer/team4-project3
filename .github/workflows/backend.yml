@@ -1,0 +1,42 @@
+name: Backend CI/CD
+
+on:
+  workflow_call:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️ Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      # 2️ Install dependencies (for Java backend if using Maven)
+      - name: Install dependencies
+        run: mvn clean package -DskipTests
+        working-directory: backend
+
+      # 3️ Login to Azure using GitHub Secrets
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 4️ Login to Azure Container Registry
+      - name: Log in to ACR
+        run: az acr login --name team4amazingregistry
+
+      # 5️ Build and Push Docker Image to ACR
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: ./backend
+          tags: |
+            team4amazingregistry.azurecr.io/backend-t4p3:latest
+            team4amazingregistry.azurecr.io/backend-t4p3:${{ github.sha }}

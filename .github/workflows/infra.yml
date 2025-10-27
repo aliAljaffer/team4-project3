@@ -1,0 +1,74 @@
+name: Infrastructure Provisioning 
+
+on:
+  workflow_call:
+    inputs:
+      fe_image_tag:
+        description: "Frontend image tag"
+        type: string
+        required: true
+        default: "latest"
+      be_image_tag:
+        description: "Backend image tag"
+        type: string
+        required: true
+        default: "latest"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform_provision:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    env:
+      #  Non-sensitive variables (from vars)
+      TF_VAR_location: ${{ vars.AZURE_LOCATION }}
+      TF_VAR_resource_group_name: ${{ vars.RESOURCE_GROUP }}
+      TF_VAR_acr_name: ${{ vars.ACR_NAME }}
+      TF_VAR_aks_name: ${{ vars.AKS_NAME }}
+
+      #  Sensitive variables (from secrets)
+      TF_VAR_sql_admin_user: ${{ secrets.SQL_ADMIN_USER }}
+      TF_VAR_sql_admin_password: ${{ secrets.SQL_ADMIN_PASSWORD }}
+
+      #  Image tags (from frontend/backend workflows)
+      TF_VAR_fe_image: ${{ vars.ACR_NAME }}.azurecr.io/frontend-t4p3:${{ inputs.fe_image_tag }}
+      TF_VAR_be_image: ${{ vars.ACR_NAME }}.azurecr.io/backend-t4p3:${{ inputs.be_image_tag }}
+
+    steps:
+      # 1️ Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      # 2️ Install Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      # 3️ Install Azure CLI & Login (OIDC)
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 4️ Terraform Init (state.config)
+      - name: Terraform Init
+        run: terraform init -backend-config="backend.conf"
+
+      # 5️ Terraform Validate
+      - name: Terraform Validate
+        run: terraform validate
+
+      #  Terraform Apply
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      #  Terraform Outputs 
+      - name: Terraform Outputs
+        run: terraform output
