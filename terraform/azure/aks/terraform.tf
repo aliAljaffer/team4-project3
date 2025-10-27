@@ -4,6 +4,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   resource_group_name = var.rg_name
   node_resource_group = var.node_rg
   dns_prefix          = "${var.resource_prefix}-dns"
+
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
+
   default_node_pool {
     node_count           = var.node_count_system_pool
     name                 = "${var.resource_prefix}np"
@@ -19,6 +23,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     service_cidr   = var.aks_node_service_cidr
     dns_service_ip = var.aks_dns_service_ip
     network_plugin = var.network_plugin
+  }
+
+  key_vault_secrets_provider {
+    secret_rotation_enabled  = true
+    secret_rotation_interval = "2m"
   }
 
 

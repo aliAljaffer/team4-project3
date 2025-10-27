@@ -71,3 +71,7 @@ variable "azure_storage_acc_key" {
   description = "Azure Storage Account Key"
   sensitive   = true
 }
+variable "app_id" {
+  type        = string
+  description = "Application user-assigned ID - Principal ID"
+}

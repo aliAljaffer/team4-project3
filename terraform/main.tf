@@ -47,6 +47,7 @@ module "kv" {
   azure_storage_conn_string = module.storage.storage_account_conn_string
   azure_storage_container   = module.storage.container_name
   acr_login                 = module.acr.cr_link
+  app_id                    = module.rbac.app_id
 }
 module "db" {
   source              = "./azure/db"
@@ -84,6 +85,11 @@ module "rbac" {
   cr_id                = module.acr.cr_id
   kubelet_object_id    = module.aks.kubelet_object_id
   kubelet_principal_id = module.aks.kubelet_principal_id
+  rg_location          = module.rg.rg_location
+  aks_oidc_issuer_url  = module.aks.aks_oidc_issuer_url
+  rg_name              = module.rg.rg_name
+  k8s_namespace        = "temp" # TODO: Change
+  k8s_service_account  = "temp" # TODO: Change
 }
 
 module "pip" {
