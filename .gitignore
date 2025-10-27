@@ -11,6 +11,8 @@ terraform*/**/deadcode.tf
 terraform*/**/*.key
 terraform*/**/*.log
 !terraform*/azure/vm/custom_data/*.sh
+terraform/aws/iam/policies/*.json
+!terraform/aws/iam/policies/**.example.json
 
 # Backend
 backend/dist

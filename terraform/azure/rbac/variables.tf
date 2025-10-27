@@ -24,3 +24,6 @@ variable "k8s_service_account" {
 variable "k8s_namespace" {
   type = string
 }
+variable "main_vnet_id" {
+  type = string
+}

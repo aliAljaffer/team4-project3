@@ -18,3 +18,15 @@ output "aks_name" {
 output "aks_oidc_issuer_url" {
   value = azurerm_kubernetes_cluster.aks.oidc_issuer_url
 }
+output "k8s_client_certificate" {
+  value = azurerm_kubernetes_cluster.aks.kube_config.0.client_certificate
+}
+output "k8s_host" {
+  value = azurerm_kubernetes_cluster.aks.kube_config.0.host
+}
+output "k8s_client_key" {
+  value = azurerm_kubernetes_cluster.aks.kube_config.0.client_key
+}
+output "k8s_cluster_ca_certificate" {
+  value = azurerm_kubernetes_cluster.aks.kube_config.0.cluster_ca_certificate
+}

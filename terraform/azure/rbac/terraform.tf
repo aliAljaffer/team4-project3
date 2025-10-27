@@ -25,3 +25,15 @@ resource "azurerm_federated_identity_credential" "catus_locatus_fc" {
   issuer              = var.aks_oidc_issuer_url
   subject             = "system:serviceaccount:${var.k8s_namespace}:${var.k8s_service_account}"
 }
+
+resource "azurerm_role_assignment" "aks_network_vnet" {
+  scope                = var.main_vnet_id
+  role_definition_name = "Network Contributor"
+  principal_id         = var.kubelet_principal_id
+}
+
+resource "azurerm_role_assignment" "kubelet_network_vnet" {
+  scope                = var.main_vnet_id
+  role_definition_name = "Network Contributor"
+  principal_id         = var.kubelet_object_id
+}

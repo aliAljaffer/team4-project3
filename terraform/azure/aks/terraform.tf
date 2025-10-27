@@ -16,6 +16,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     min_count            = var.min_count_system_pool
     auto_scaling_enabled = true
     vnet_subnet_id       = var.cluster_subnet_id
+    upgrade_settings {
+      drain_timeout_in_minutes      = 0
+      max_surge                     = "10%"
+      node_soak_duration_in_minutes = 0
+    }
   }
 
 
@@ -46,4 +51,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "user_node_pool" {
   min_count                   = var.min_count_user_pool
   max_count                   = var.max_count_user_pool
   temporary_name_for_rotation = var.temporary_name_for_rotation
+  upgrade_settings {
+    drain_timeout_in_minutes      = 0
+    max_surge                     = "10%"
+    node_soak_duration_in_minutes = 0
+  }
 }

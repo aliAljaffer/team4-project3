@@ -19,7 +19,7 @@ resource "azurerm_key_vault" "kvault" {
 
   network_acls {
     bypass                     = "AzureServices"
-    default_action             = "Deny"
+    default_action             = "Allow"
     virtual_network_subnet_ids = var.subnet_ids
   }
 }
@@ -33,8 +33,6 @@ resource "azurerm_key_vault_access_policy" "catus_locatus_access" {
     "Get",
   ]
 }
-
-
 
 resource "azurerm_key_vault_secret" "db_user" {
   name         = "DB-USER"
