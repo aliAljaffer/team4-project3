@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cl-be
+  labels:
+    app: cl-be
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cl-be
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 20%
+  template:
+    metadata:
+      labels:
+        app: cl-be
+    spec:
+      containers:
+        - name: backend-t4p3
+          image: team4amazingregistry.azurecr.io/backend:v1
+          ports:
+            - containerPort: 4001
+          envFrom:
+            - configMapRef:
+                name: catus-locatus-cm-be
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4001
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4001
+            initialDelaySeconds: 5
+            periodSeconds: 15
