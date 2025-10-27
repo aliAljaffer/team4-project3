@@ -1,12 +1,14 @@
 kind: Deployment
 apiVersion: apps/v1
 metadata:
-  name: frontend-deployment
+  name: cl-fe
   namespace: 
   labels:
-    app: frontend
+    app: cl-fe
     tier: frontend
     version: v1.0
+    name: cl-fe
+
   #annotations for prometehus here
 
   
@@ -15,47 +17,42 @@ spec:
   replicas: 3
   selector:
     matchLabels:
-      app: frontend
+      app: cl-fe
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+      maxSurge: 2
+      maxUnavailable: 25%
   template: 
     metadata:
       labels:
-        app: frontend
+        app: cl-fe
         tier: frontend
         version: v1.0
     spec:
       containers:
-        - name: frontend
-          image: nginx:latest
+        - name: catus-locatus-fe
+          image: frontend-t4p3:latest
           ports:
-            - containerPort: 80
+            - containerPort: 8080
               protocol: TCP
           imagePullPolicy: IfNotPresent
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: "100Mi"
+              cpu: "100m"
             limits:
-              memory: "512Mi"
-              cpu: "500m"
-            envFrom:
-              - configMapRef:
-                  name: frontend-config
-              - secretRef:
-                  name: frontend-secret      
+              memory: "100Mi"
+              cpu: "100m"    
           livenessProbe:
             httpGet:
               path: /health
-              port: 80
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
           readinessProbe: 
             httpGet:
               path: /
-              port: 80
+              port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
