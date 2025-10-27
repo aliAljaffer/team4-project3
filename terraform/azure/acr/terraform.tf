@@ -4,7 +4,7 @@ resource "azurerm_container_registry" "cr" {
   location            = var.rg_location
   sku                 = var.acr_registry_sku
 
-  public_network_access_enabled = false
+  public_network_access_enabled = true
 
   anonymous_pull_enabled     = true
   network_rule_bypass_option = "AzureServices"
