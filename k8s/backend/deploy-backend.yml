@@ -23,19 +23,19 @@ spec:
         - name: backend-t4p3
           image: team4amazingregistry.azurecr.io/backend:v1
           ports:
-            - containerPort: 8080
+            - containerPort: 4001
           envFrom:
             - configMapRef:
                 name: catus-locatus-cm-be
           livenessProbe:
             httpGet:
               path: /health
-              port: 8080
+              port: 4001
             initialDelaySeconds: 10
             periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /health
-              port: 8080
+              port: 4001
             initialDelaySeconds: 5
             periodSeconds: 15
