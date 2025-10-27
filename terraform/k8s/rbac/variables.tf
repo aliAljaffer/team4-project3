@@ -7,3 +7,10 @@ variable "app_ns" {
 variable "sa_name" {
   type = string
 }
+variable "hosted_zone_id" {
+  type = string
+}
+variable "email" {
+  type    = string
+  default = "ali@tuwaiqtracker.com"
+}

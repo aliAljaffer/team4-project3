@@ -1,3 +1,4 @@
+# =-=-=-=---=-=--=-=-=-=-=-=-=-= AZURE
 module "az_rg" {
   source          = "./azure/resourcegroup"
   location        = var.location
@@ -89,7 +90,7 @@ module "az_rbac" {
   aks_oidc_issuer_url  = module.az_aks.aks_oidc_issuer_url
   rg_name              = module.az_rg.rg_name
   k8s_namespace        = module.k8s_ns.app_ns
-  k8s_service_account  = module.k8s_rbac.service_account_name
+  k8s_service_account  = module.k8s_rbac.app_service_account_name
   main_vnet_id         = module.az_vnet.vnet_id
 }
 
@@ -101,7 +102,17 @@ module "az_storage" {
 }
 
 
-# K8s
+# =-=-=-=---=-=--=-=-=-=-=-=-=-= K8s
+
+module "deployment" {
+  source                         = "./k8s/deployment"
+  az_aks_name                    = module.az_aks.aks_name
+  ext_dns_sa_name                = module.k8s_rbac.ext_dns_service_account_name
+  external_dns_access_key_id     = module.aws_iam.external_dns_access_key_id
+  external_dns_access_key_secret = module.aws_iam.external_dns_secret_access_key
+  depends_on                     = [module.aws_iam]
+  ext_dns_secret_ref             = module.k8s_secret.ext_dns_secret_ref
+}
 
 module "k8s_ns" {
   source        = "./k8s/ns"
@@ -121,11 +132,12 @@ module "k8s_secret" {
 }
 
 module "k8s_rbac" {
-  source     = "./k8s/rbac"
-  app_id     = module.az_rbac.app_id
-  app_ns     = module.k8s_ns.app_ns
-  sa_name    = var.service_account_name
-  depends_on = [module.az_aks]
+  source         = "./k8s/rbac"
+  app_id         = module.az_rbac.app_id
+  app_ns         = module.k8s_ns.app_ns
+  sa_name        = var.service_account_name
+  depends_on     = [module.az_aks, module.aws_r53]
+  hosted_zone_id = module.aws_r53.aws_r53_zone_id
 }
 
 module "k8s_secretprovider" {
@@ -137,7 +149,7 @@ module "k8s_secretprovider" {
   depends_on = [module.az_aks, module.az_kv, module.az_rbac]
 }
 
-# AWS
+# =-=-=-=---=-=--=-=-=-=-=-=-=-= AWS
 
 module "aws_iam" {
   source          = "./aws/iam"
@@ -148,44 +160,3 @@ module "aws_r53" {
   source     = "./aws/route53"
   r53_domain = var.domain_to_use
 }
-
-# secrets = {
-#   "DB-USER" = {
-#     value   = "myuser"
-#     k8s_key = "db_user"
-#   }
-#   "DB-PASSWORD" = {
-#     value        = "mypassword"
-#     k8s_key      = "db_password"
-#     content_type = "password"
-#   }
-#   "DB-HOST" = {
-#     value   = "myhost.database.azure.com"
-#     k8s_key = "db_host"
-#   }
-#   "DB-NAME" = {
-#     value   = "mydatabase"
-#     k8s_key = "db_name"
-#   }
-#   "DB-SERVER" = {
-#     value   = "myserver"
-#     k8s_key = "db_server"
-#   }
-#   "AZURE-STORAGE-CONNECTION-STRING" = {
-#     k8s_key = "azure_storage_connection_string"
-#   }
-#   "AZURE-STORAGE-CONTAINER" = {
-#     value   = "mycontainer"
-#     k8s_key = "azure_storage_container"
-#   }
-#   "AZURE-STORAGE-ACCOUNT-KEY" = {
-#     value   = "myaccountkey"
-#     k8s_key = "azure_storage_account_key"
-#   }
-#   "AZURE-STORAGE-ACCOUNT-NAME" = {
-#     k8s_key = "azure_storage_account_name"
-#   }
-#   "ACR-LOGIN-SERVER" = {
-#     k8s_key = "acr_login_server"
-#   }
-# }
