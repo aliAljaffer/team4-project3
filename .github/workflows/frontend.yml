@@ -49,11 +49,11 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t team4amazingregistry.azurecr.io/frontend:${{ github.sha }} .
-          docker tag team4amazingregistry.azurecr.io/frontend:${{ github.sha }} team4amazingregistry.azurecr.io/frontend:latest
+          docker tag team4amazingregistry.azurecr.io/frontend:${{ github.sha }} team4amazingregistry.azurecr.io/frontend-t4p3:latest
         working-directory: frontend
 
       # 7️ Push both tags to ACR
       - name: Push Docker image (commit + latest)
         run: |
           docker push team4amazingregistry.azurecr.io/frontend:${{ github.sha }}
-          docker push team4amazingregistry.azurecr.io/frontend:latest
+          docker push team4amazingregistry.azurecr.io/frontend-t4p3:latest
