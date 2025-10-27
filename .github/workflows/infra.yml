@@ -1,4 +1,4 @@
-name: Infrastructure Provisioning (AKS Project)
+name: Infrastructure Provisioning
 
 on:
   workflow_call:
@@ -49,16 +49,13 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: Azure Login (OIDC)
+      - name: Azure Login 
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Terraform Init
         run: terraform init -backend-config="state.config"
-
-      - name: Terraform Validate
-        run: terraform validate
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
