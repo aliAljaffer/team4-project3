@@ -1,5 +1,5 @@
 # Multi-stage build for better optimization
-FROM node:18-alpine AS builder
+FROM node:25-alpine3.21 AS builder
 
 # Create app directory
 WORKDIR /app
@@ -11,17 +11,19 @@ COPY package*.json ./
 RUN npm ci && npm cache clean --force
 
 # Copy source code
-COPY . .
+COPY tsconfig.json ./
+COPY src ./src
+COPY db-data ./db-data
 
 # Build the TypeScript application
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine AS production
+FROM node:25-alpine3.21 AS production
 
 # Create non-root user and group for security
 RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+    adduser -S nodejs -u 1001
 
 # Create app directory
 WORKDIR /app
@@ -34,6 +36,7 @@ RUN npm ci --only=production && npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/db-data ./db-data
 
 # Change ownership of the app directory to the nodejs user
 RUN chown -R nextjs:nodejs /app
@@ -51,4 +54,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:4001/api/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["node", "dist/server.js"]
