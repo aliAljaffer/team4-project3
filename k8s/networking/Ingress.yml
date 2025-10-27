@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    external-dns.alpha.kubernetes.io/ttl: "300"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
+  labels:
+    app: three-tier-app
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - team4.alialjaffer.com
+    secretName: team4-tls
+  rules:
+  - host: team4.alialjaffer.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: catus-locatus-svc
+            port:
+              number: 4001
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cl-fe-svc
+            port:
+              number: 80
+      
