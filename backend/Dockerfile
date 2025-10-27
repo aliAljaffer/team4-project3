@@ -39,8 +39,8 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/db-data ./db-data
 
 # Change ownership of the app directory to the nodejs user
-RUN chown -R nextjs:nodejs /app
-USER nextjs
+RUN chown -R nodejs:nodejs /app
+USER nodejs
 
 # Expose port 4001
 EXPOSE 4001
