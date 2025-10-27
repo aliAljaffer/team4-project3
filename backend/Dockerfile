@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install ALL dependencies (including dev dependencies for build)
-RUN npm ci && npm cache clean --force
+RUN npm install npm ci && npm cache clean --forcenpm ci && npm cache clean --force npm cache clean --force
 
 # Copy source code
 COPY tsconfig.json ./
@@ -32,14 +32,14 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install ONLY production dependencies
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install --omit=dev npm ci --only=production && npm cache clean --forcenpm ci --only=production && npm cache clean --force npm cache clean --force
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/db-data ./db-data
 
 # Change ownership of the app directory to the nodejs user
-RUN chown -R nextjs:nodejs /app
+RUN chown -R nodejs:nodejs /app
 USER nextjs
 
 # Expose port 4001
