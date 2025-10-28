@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cl-be
+  namespace: team4project3
   labels:
     app: cl-be
 spec:
