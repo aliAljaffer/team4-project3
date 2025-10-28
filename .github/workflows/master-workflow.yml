@@ -8,6 +8,8 @@ on:
       - "backend/**"
       - "frontend/**"
       - "k8s/**"
+permissions:
+  id-token: write
 
 jobs:
   detect-changes:
