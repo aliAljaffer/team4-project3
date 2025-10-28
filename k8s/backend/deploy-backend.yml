@@ -25,7 +25,13 @@ spec:
         - name: backend-t4p3
           image: team4amazingregistry.azurecr.io/backend-t4p3:latest
           imagePullPolicy: Always
-          resources: {}
+          resources:
+            requests:
+              memory: "100Mi"
+              cpu: "100m"
+            limits:
+              memory: "100Mi"
+              cpu: "100m"
           ports:
             - containerPort: 4001
           livenessProbe:
