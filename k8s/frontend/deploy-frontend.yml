@@ -18,19 +18,18 @@ spec:
     rollingUpdate:
       maxSurge: 2
       maxUnavailable: 25%
-  template: 
+  template:
     metadata:
       labels:
         app: cl-fe
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "/metrics"
     spec:
       serviceAccountName: catus-locatus
       containers:
-        - name: catus-locatus-fe
+        - name: frontend-t4p3
           image: team4amazingregistry.azurecr.io/frontend-t4p3:latest
+          env:
+            - name: "VITE_CATUS_LOCATUS_API_URL"
+              value: "/api/"
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -41,16 +40,23 @@ spec:
               cpu: "100m"
             limits:
               memory: "100Mi"
-              cpu: "100m"    
+              cpu: "100m"
           livenessProbe:
             httpGet:
               path: /health
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
-          readinessProbe: 
+          readinessProbe:
             httpGet:
               path: /
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 5
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "team4-super-secrets"

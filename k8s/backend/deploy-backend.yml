@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   namespace: team4project3
   name: cl-be
-  namespace: team4project3
   labels:
     app: cl-be
 spec:
@@ -24,21 +23,29 @@ spec:
       serviceAccountName: catus-locatus
       containers:
         - name: backend-t4p3
-          image: team4amazingregistry.azurecr.io/backend:v1
+          image: team4amazingregistry.azurecr.io/backend-t4p3:latest
+          resources: {}
           ports:
             - containerPort: 4001
           envFrom:
-            - configMapRef:
-                name: catus-locatus-cm-be
+            - secretRef:
+                name: catus-locatus-secrets
           livenessProbe:
             httpGet:
-              path: /health
+              path: /api/health
               port: 4001
             initialDelaySeconds: 10
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /health
+              path: /api/health
               port: 4001
             initialDelaySeconds: 5
             periodSeconds: 15
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "team4-super-secrets"
