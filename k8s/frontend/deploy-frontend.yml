@@ -33,7 +33,7 @@ spec:
           ports:
             - containerPort: 8080
               protocol: TCP
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           resources:
             requests:
               memory: "100Mi"
