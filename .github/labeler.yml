@@ -1,32 +1,33 @@
 frontend:
-  - patterns:
-      - frontend/**
+  - changed-files:
+      - any-glob-to-any-file: "frontend/**"
 
 backend:
-  - patterns:
-      - backend/**
+  - changed-files:
+      - any-glob-to-any-file: "backend/**"
 
 infrastructure-aws:
-  - patterns:
-      - terraform/aws/**
+  - changed-files:
+      - any-glob-to-any-file: "terraform/aws/**"
 
 infrastructure-azure:
-  - patterns:
-      - terraform/azure/**
+  - changed-files:
+      - any-glob-to-any-file: "terraform/azure/**"
 
 infrastructure-k8s:
-  - patterns:
-      - terraform/k8s/**
+  - changed-files:
+      - any-glob-to-any-file: "terraform/k8s/**"
 
 kubernetes:
-  - patterns:
-      - k8s/**
+  - changed-files:
+      - any-glob-to-any-file: "k8s/**"
 
 ci/cd:
-  - patterns:
-      - .github/workflows/**
+  - changed-files:
+      - any-glob-to-any-file: ".github/workflows/**"
 
 documentation:
-  - patterns:
-      - "**/*.md"
-      - docs/**
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**"
