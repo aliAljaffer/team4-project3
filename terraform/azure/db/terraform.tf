@@ -26,7 +26,7 @@ resource "azurerm_postgresql_flexible_server" "main_server" {
   storage_mb   = 32768
   storage_tier = "P4"
 
-  sku_name = "B_Standard_B2s"
+  sku_name = var.db_sku_name
 
   depends_on = [azurerm_private_dns_zone_virtual_network_link.sql_main_vnet]
 

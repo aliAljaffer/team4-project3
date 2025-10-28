@@ -14,7 +14,4 @@ resource "azurerm_network_security_group" "db_nsg" {
     destination_port_range     = "5432"
   }
 }
-# resource "azurerm_subnet_network_security_group_association" "db_assoc" {
-#   network_security_group_id = azurerm_network_security_group.db_nsg.id
-#   subnet_id                 = var.db_subnet_id
-# }
+

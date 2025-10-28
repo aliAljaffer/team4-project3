@@ -24,12 +24,69 @@ resource "azurerm_key_vault" "kvault" {
   }
 }
 
-# resource "azurerm_key_vault_secret" "mysecrets" {
-#   for_each     = var.secrets
-#   name         = each.key
-#   value        = each.value
-#   key_vault_id = azurerm_key_vault.kvault.id
-# }
+resource "azurerm_key_vault_access_policy" "catus_locatus_access" {
+  key_vault_id = azurerm_key_vault.kvault.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = var.app_id
+
+  secret_permissions = [
+    "Get",
+  ]
+}
+
+
+
+resource "azurerm_key_vault_secret" "db_user" {
+  name         = "DB-USER"
+  value        = var.db_user
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "db_password" {
+  name         = "DB-PASSWORD"
+  value        = var.db_password
+  key_vault_id = azurerm_key_vault.kvault.id
+  content_type = "password"
+}
+resource "azurerm_key_vault_secret" "db_host" {
+  name         = "DB-HOST"
+  value        = var.db_host
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "db_name" {
+  name         = "DB-NAME"
+  value        = var.db_name
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "db_server" {
+  name         = "DB-SERVER"
+  value        = var.db_server
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "azure_storage_conn_string" {
+  name         = "AZURE-STORAGE-CONNECTION-STRING"
+  value        = var.azure_storage_conn_string
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "azure_storage_container" {
+  name         = "AZURE-STORAGE-CONTAINER"
+  value        = var.azure_storage_container
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "azure_storage_acc_key" {
+  name         = "AZURE-STORAGE-ACCOUNT-KEY"
+  value        = var.azure_storage_acc_key
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "azure_storage_acc_name" {
+  name         = "AZURE-STORAGE-ACCOUNT-NAME"
+  value        = var.azure_storage_acc_name
+  key_vault_id = azurerm_key_vault.kvault.id
+}
+resource "azurerm_key_vault_secret" "acr_login" {
+  name         = "ACR-LOGIN-SERVER"
+  value        = var.acr_login
+  key_vault_id = azurerm_key_vault.kvault.id
+}
 
 resource "azurerm_private_endpoint" "kv" {
   name                = "pe-keyvault"

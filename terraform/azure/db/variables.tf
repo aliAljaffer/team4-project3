@@ -36,6 +36,10 @@ variable "vnet_id" {
 variable "db_subnet_id" {
   type = string
 }
+variable "db_sku_name" {
+  type    = string
+  default = "B_Standard_B2s"
+}
 variable "vnet_address_space" {
   type = set(string)
 }

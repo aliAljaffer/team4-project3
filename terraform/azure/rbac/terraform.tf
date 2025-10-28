@@ -10,3 +10,18 @@ resource "azurerm_role_assignment" "k8s_acr_pull_pid" {
   scope                            = var.cr_id
   skip_service_principal_aad_check = true
 }
+
+resource "azurerm_user_assigned_identity" "catus_locatus_identity" {
+  name                = "cl-identity"
+  resource_group_name = var.rg_name
+  location            = var.rg_location
+}
+
+resource "azurerm_federated_identity_credential" "catus_locatus_fc" {
+  name                = "cl-fc"
+  resource_group_name = var.rg_name
+  parent_id           = azurerm_user_assigned_identity.catus_locatus_identity.id
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = var.aks_oidc_issuer_url
+  subject             = "system:serviceaccount:${var.k8s_namespace}:${var.k8s_service_account}"
+}

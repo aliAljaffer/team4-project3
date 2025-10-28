@@ -4,22 +4,30 @@ resource "azurerm_kubernetes_cluster" "aks" {
   resource_group_name = var.rg_name
   node_resource_group = var.node_rg
   dns_prefix          = "${var.resource_prefix}-dns"
+
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
+
   default_node_pool {
-    node_count           = var.node_count
+    node_count           = var.node_count_system_pool
     name                 = "${var.resource_prefix}np"
-    vm_size              = var.vm_size
-    max_count            = var.max_count
-    min_count            = var.min_count
+    vm_size              = var.vm_size_system_pool
+    max_count            = var.max_count_system_pool
+    min_count            = var.min_count_system_pool
     auto_scaling_enabled = true
     vnet_subnet_id       = var.cluster_subnet_id
   }
 
 
   network_profile {
-    service_cidr   = "10.2.0.0/16"
-    dns_service_ip = "10.2.0.10"
-    network_plugin = "azure"
+    service_cidr   = var.aks_node_service_cidr
+    dns_service_ip = var.aks_dns_service_ip
+    network_plugin = var.network_plugin
+  }
 
+  key_vault_secrets_provider {
+    secret_rotation_enabled  = true
+    secret_rotation_interval = "2m"
   }
 
 
@@ -31,11 +39,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
 resource "azurerm_kubernetes_cluster_node_pool" "user_node_pool" {
   name                        = "${var.resource_prefix}unp"
   kubernetes_cluster_id       = azurerm_kubernetes_cluster.aks.id
-  vm_size                     = var.vm_size
+  vm_size                     = var.vm_size_user_pool
   vnet_subnet_id              = var.cluster_subnet_id
-  node_count                  = 2
+  node_count                  = var.node_count_user_pool
   auto_scaling_enabled        = true
-  min_count                   = 2
-  max_count                   = 3
-  temporary_name_for_rotation = "team4tmpnm"
+  min_count                   = var.min_count_user_pool
+  max_count                   = var.max_count_user_pool
+  temporary_name_for_rotation = var.temporary_name_for_rotation
 }
