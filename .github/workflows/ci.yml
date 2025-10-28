@@ -6,7 +6,9 @@ on:
         paths:
             - "backend/**"
             - "frontend/**"
-
+permissions:
+    id-token: write
+    contents: read
 jobs:
     detect-changes:
         runs-on: ubuntu-latest

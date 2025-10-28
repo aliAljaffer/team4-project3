@@ -10,6 +10,8 @@ on:
       - "k8s/**"
 permissions:
   id-token: write
+  contents: read
+  pull-requests: write
 
 jobs:
   detect-changes:
