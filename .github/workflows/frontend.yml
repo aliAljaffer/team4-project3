@@ -29,14 +29,13 @@ jobs:
 
       # 4️ Login to Azure Container Registry (ACR)
       - name: Log in to ACR
-        run: az acr login --name team4amazingregistry
+        run: az acr login --name ${{ vars.ACR_NAME }}
 
-      # 5️ Build Docker image with commit tag and latest tag
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
           push: true
           context: ./frontend
           tags: |
-            team4amazingregistry.azurecr.io/frontend-t4p3:latest
-            team4amazingregistry.azurecr.io/frontend-t4p3:${{ github.sha }}
+            ${{ vars.ACR_NAME }}.azurecr.io/frontend-t4p3:latest
+            ${{ vars.ACR_NAME }}.azurecr.io/frontend-t4p3:${{ github.sha }}
