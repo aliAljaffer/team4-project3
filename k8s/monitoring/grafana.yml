@@ -3,6 +3,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: grafana-pvc
+  namespace: team4project3
 spec:
   accessModes:
     - ReadWriteOnce
