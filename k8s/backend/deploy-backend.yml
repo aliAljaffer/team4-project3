@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: team4project3
   name: cl-be
   labels:
     app: cl-be
@@ -19,6 +20,7 @@ spec:
       labels:
         app: cl-be
     spec:
+      serviceAccountName: catus-locatus
       containers:
         - name: backend-t4p3
           image: team4amazingregistry.azurecr.io/backend:v1
