@@ -1,22 +1,32 @@
 frontend:
-  - frontend/**
+  - patterns:
+      - frontend/**
 
 backend:
-  - backend/**
+  - patterns:
+      - backend/**
 
 infrastructure-aws:
-  - terraform/aws/**
+  - patterns:
+      - terraform/aws/**
+
 infrastructure-azure:
-  - terraform/azure/**
+  - patterns:
+      - terraform/azure/**
+
 infrastructure-k8s:
-  - terraform/k8s/**
+  - patterns:
+      - terraform/k8s/**
 
 kubernetes:
-  - k8s/**
+  - patterns:
+      - k8s/**
 
 ci/cd:
-  - .github/workflows/**
+  - patterns:
+      - .github/workflows/**
 
 documentation:
-  - "**/*.md"
-  - docs/**
+  - patterns:
+      - "**/*.md"
+      - docs/**
