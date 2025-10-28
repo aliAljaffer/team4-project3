@@ -66,7 +66,7 @@ spec:
             - mountPath: /var/lib/grafana
               name: grafana-pv
             - name: datasource-config
-              mountPath: /etc/grafana/provisioning/prometheus-datasource.yaml
+              mountPath: /etc/grafana/provisioning/datasources
     
       volumes:
         - name: grafana-pv
