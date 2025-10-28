@@ -2,6 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: catus-locatus-svc
+  namespace: team4project3
   labels:
     app: catus-locatus-svc
 spec:

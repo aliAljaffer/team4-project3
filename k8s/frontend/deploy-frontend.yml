@@ -2,7 +2,7 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: cl-fe
-  namespace: 
+  namespace: team4project3
   labels:
     app: cl-fe
     tier: frontend

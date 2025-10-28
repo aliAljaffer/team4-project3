@@ -1,7 +1,8 @@
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: hpa-frontend
+  name: hpa
+  namespace: team4project3
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
