@@ -2,7 +2,7 @@ resource "azurerm_subnet" "cluster_subnet" {
   name                 = "${var.resource_prefix}-cluster-subnet"
   virtual_network_name = var.vnet_name
   resource_group_name  = var.rg_name
-  address_prefixes     = var.cluster_subnet_cidr # ["10.0.1.0/24"]
+  address_prefixes     = var.cluster_subnet_cidr
   service_endpoints    = ["Microsoft.KeyVault"]
 }
 resource "azurerm_subnet" "db_subnet" {

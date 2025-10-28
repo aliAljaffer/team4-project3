@@ -19,7 +19,7 @@ resource "azurerm_key_vault" "kvault" {
 
   network_acls {
     bypass                     = "AzureServices"
-    default_action             = "Deny"
+    default_action             = "Allow"
     virtual_network_subnet_ids = var.subnet_ids
   }
 }
@@ -27,14 +27,12 @@ resource "azurerm_key_vault" "kvault" {
 resource "azurerm_key_vault_access_policy" "catus_locatus_access" {
   key_vault_id = azurerm_key_vault.kvault.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = var.app_id
+  object_id    = var.app_principal_id # Principal ID
 
   secret_permissions = [
-    "Get",
+    "Get", "List"
   ]
 }
-
-
 
 resource "azurerm_key_vault_secret" "db_user" {
   name         = "DB-USER"
@@ -99,6 +97,10 @@ resource "azurerm_private_endpoint" "kv" {
     private_connection_resource_id = azurerm_key_vault.kvault.id
     is_manual_connection           = false
     subresource_names              = ["vault"]
+  }
+  private_dns_zone_group {
+    name                 = "kv-dns-zone-group"
+    private_dns_zone_ids = [azurerm_private_dns_zone.kv.id]
   }
 }
 

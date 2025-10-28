@@ -43,3 +43,25 @@ variable "vm_size_user_pool" {
   type    = string
   default = "Standard_A2_v2"
 }
+variable "domain_to_use" {
+  type        = string
+  default     = "alialjaffer.com"
+  description = "apex domain"
+}
+variable "aws_access_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "aws_secret_key" {
+  type      = string
+  sensitive = true
+}
+variable "service_account_name" {
+  type    = string
+  default = "catus-locatus"
+}
+variable "app_namespace" {
+  type    = string
+  default = "team4project3"
+}
