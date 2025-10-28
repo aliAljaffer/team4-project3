@@ -27,6 +27,7 @@ module "az_nsg" {
   cluster_subnet_id       = module.az_subnet.cluster_subnet_id
   main_vnet_address_space = module.az_vnet.vnet_address_space
   cluster_subnet_cidr     = module.az_subnet.cluster_subnet_cidr
+
 }
 
 module "az_kv" {
@@ -49,7 +50,7 @@ module "az_kv" {
   azure_storage_container   = module.az_storage.container_name
   acr_login                 = module.az_acr.cr_link
   app_principal_id          = module.az_rbac.app_principal_id
-
+  kube_config               = module.az_aks.kube_config
 }
 module "az_db" {
   source              = "./azure/db"

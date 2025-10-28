@@ -75,3 +75,8 @@ variable "app_principal_id" {
   type        = string
   description = "Application user-assigned ID - Principal ID"
 }
+variable "kube_config" {
+  type        = string
+  description = "Configurations of the AKS cluster"
+  sensitive   = true
+}

@@ -9,18 +9,29 @@ resource "azurerm_key_vault" "kvault" {
   rbac_authorization_enabled    = false
 
   access_policy {
-    object_id = data.azurerm_client_config.current.object_id
+    object_id               = data.azurerm_client_config.current.object_id
+    tenant_id               = data.azurerm_client_config.current.tenant_id
+    key_permissions         = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore"]
+    secret_permissions      = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore"]
+    certificate_permissions = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore"]
+  }
+  # Azure CLI??
+  access_policy {
+    object_id = "bd354761-2632-417c-b1e7-f03b301cd8b1"
     tenant_id = data.azurerm_client_config.current.tenant_id
 
     key_permissions         = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore"]
     secret_permissions      = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore"]
     certificate_permissions = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore"]
   }
+  # Service Principal
+  access_policy {
+    object_id = "d1f6145c-21c1-42fa-bd33-0788522ebc6a"
+    tenant_id = data.azurerm_client_config.current.tenant_id
 
-  network_acls {
-    bypass                     = "AzureServices"
-    default_action             = "Allow"
-    virtual_network_subnet_ids = var.subnet_ids
+    key_permissions         = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore"]
+    secret_permissions      = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore"]
+    certificate_permissions = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore"]
   }
 }
 
@@ -115,4 +126,12 @@ resource "azurerm_private_dns_zone_virtual_network_link" "kv" {
   resource_group_name   = var.rg_name
   private_dns_zone_name = azurerm_private_dns_zone.kv.name
   virtual_network_id    = var.main_vnet_id
+}
+
+# KUBE CONFIG
+
+resource "azurerm_key_vault_secret" "kube_config" {
+  name         = "KUBE-CONFIG"
+  value        = var.kube_config
+  key_vault_id = azurerm_key_vault.kvault.id
 }
