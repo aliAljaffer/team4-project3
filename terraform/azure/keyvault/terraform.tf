@@ -33,6 +33,12 @@ resource "azurerm_key_vault" "kvault" {
     secret_permissions      = ["Get", "List", "Set", "Delete", "Recover", "Backup", "Restore"]
     certificate_permissions = ["Get", "List", "Update", "Delete", "Recover", "Backup", "Restore"]
   }
+  # GitHub Sp
+  access_policy {
+    object_id          = "496d8d43-ef6f-4e95-afda-2b92076e934f"
+    tenant_id          = data.azurerm_client_config.current.tenant_id
+    secret_permissions = ["Get", "List", "Set"]
+  }
 }
 
 resource "azurerm_key_vault_access_policy" "catus_locatus_access" {
