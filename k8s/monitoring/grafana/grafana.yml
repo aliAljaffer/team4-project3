@@ -15,6 +15,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: team4project3
   labels:
     app: grafana
   name: grafana
@@ -79,6 +80,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: grafana
+  namespace: team4project3
 spec:
   ports:
     - port: 3000
