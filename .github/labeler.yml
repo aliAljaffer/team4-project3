@@ -1,0 +1,22 @@
+frontend:
+  - frontend/**
+
+backend:
+  - backend/**
+
+infrastructure-aws:
+  - terraform/aws/**
+infrastructure-azure:
+  - terraform/azure/**
+infrastructure-k8s:
+  - terraform/k8s/**
+
+kubernetes:
+  - k8s/**
+
+ci/cd:
+  - .github/workflows/**
+
+documentation:
+  - "**/*.md"
+  - docs/**

@@ -1,0 +1,132 @@
+name: Master CD pipeline
+on:
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+      - ".github/workflows/**"
+      - "backend/**"
+      - "frontend/**"
+      - "k8s/**"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      terraform: ${{ steps.filter.outputs.terraform }}
+      k8s: ${{ steps.filter.outputs.k8s }}
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v5
+
+      - name: Detect Changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+            backend:
+              - 'backend/**'
+            terraform:
+              - 'terraform/**'
+            k8s:
+              - 'k8s/**'
+
+  build-frontend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/docker-pipeline.yml
+    secrets: inherit
+    with:
+      service: frontend
+
+  build-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    uses: ./.github/workflows/docker-pipeline.yml
+    secrets: inherit
+    with:
+      service: backend
+
+  deploy-infrastructure:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.terraform == 'true'
+    uses: ./.github/workflows/infra.yml
+    secrets: inherit
+
+  update-frontend-deployment:
+    needs: [detect-changes, build-frontend]
+    if: needs.detect-changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/update-deployment.yml
+    secrets: inherit
+    with:
+      service: frontend
+      deployment_name: cl-fe
+
+  update-backend-deployment:
+    needs: [detect-changes, build-backend]
+    if: needs.detect-changes.outputs.backend == 'true'
+    uses: ./.github/workflows/update-deployment.yml
+    secrets: inherit
+    with:
+      service: backend
+      deployment_name: cl-be
+
+  deploy-kubernetes:
+    needs: [detect-changes, deploy-infrastructure]
+    if: |
+      always() &&
+      !cancelled() &&
+      !contains(needs.*.result, 'failure') &&
+      needs.detect-changes.outputs.k8s == 'true'
+    uses: ./.github/workflows/kubernetes.yml
+    secrets: inherit
+
+  workflow-summary:
+    needs:
+      [
+        detect-changes,
+        build-frontend,
+        build-backend,
+        deploy-infrastructure,
+        update-frontend-deployment,
+        update-backend-deployment,
+        deploy-kubernetes,
+      ]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Workflow Summary
+        run: |
+          echo "## CI/CD Pipeline Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Changes Detected" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend**: ${{ needs.detect-changes.outputs.frontend == 'true' && ' Changed' || 'No changes' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend**: ${{ needs.detect-changes.outputs.backend == 'true' && ' Changed' || 'No changes' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Terraform**: ${{ needs.detect-changes.outputs.terraform == 'true' && ' Changed' || 'No changes' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Kubernetes Manifests**: ${{ needs.detect-changes.outputs.k8s == 'true' && ' Changed' || 'No changes' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Workflow Execution Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Workflow | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Build | ${{ needs.build-frontend.result == 'success' && 'Success' || needs.build-frontend.result == 'skipped' && 'Skipped' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend Build | ${{ needs.build-backend.result == 'success' && 'Success' || needs.build-backend.result == 'skipped' && 'Skipped' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Infrastructure Deployment | ${{ needs.deploy-infrastructure.result == 'success' && 'Success' || needs.deploy-infrastructure.result == 'skipped' && 'Skipped' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Update | ${{ needs.update-frontend-deployment.result == 'success' && 'Success' || needs.update-frontend-deployment.result == 'skipped' && 'Skipped' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Backend Update | ${{ needs.update-backend-deployment.result == 'success' && 'Success' || needs.update-backend-deployment.result == 'skipped' && 'Skipped' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Kubernetes Manifests | ${{ needs.deploy-kubernetes.result == 'success' && 'Success' || needs.deploy-kubernetes.result == 'skipped' && 'Skipped' || 'Failed' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.build-frontend.result }}" == "success" || "${{ needs.build-backend.result }}" == "success" ]]; then
+            echo "### Docker Images Deployed" >> $GITHUB_STEP_SUMMARY
+            if [[ "${{ needs.build-frontend.result }}" == "success" ]]; then
+              echo "- **Frontend**: \`${{ vars.ACR_NAME }}.azurecr.io/frontend-t4p3:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+            fi
+            if [[ "${{ needs.build-backend.result }}" == "success" ]]; then
+              echo "- **Backend**: \`${{ vars.ACR_NAME }}.azurecr.io/backend-t4p3:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,0 +1,113 @@
+name: Kubernetes manifests pipeline
+
+on:
+    workflow_call:
+
+jobs:
+    provision_backend:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: k8s/backend
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Load in kube_config
+              run: |
+                  az keyvault secret show --vault-name ${{ secrets.VAULT_NAME }} --name ${{secrets.SECRET_NAME}} --query value -o tsv > $HOME/.kube/config
+                  chmod 600 $HOME/.kube/config
+
+            - name: Provision Backend Deployment
+              run: kubectl apply -f deploy-backend.yml --wait
+
+            - name: Provision Backend HPA
+
+              run: kubectl apply -f hpa-backend.yml
+
+    provision_frontend:
+        runs-on: ubuntu-latest
+        needs: provision_backend
+        defaults:
+            run:
+                working-directory: k8s/frontend
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Load in kube_config
+              run: |
+                  az keyvault secret show --vault-name ${{ secrets.VAULT_NAME }} --name ${{secrets.SECRET_NAME}} --query value -o tsv > $HOME/.kube/config
+                  chmod 600 $HOME/.kube/config
+
+            - name: Provision Frontend Deployment
+              run: kubectl apply -f deploy-frontend.yml --wait
+
+            - name: Provision frontend HPA
+              run: kubectl apply -f hpa-frontend.yml
+
+    provision_networking:
+        runs-on: ubuntu-latest
+        needs: [provision_backend, provision_frontend]
+        defaults:
+            run:
+                working-directory: k8s/networking
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Load in kube_config
+              run: |
+                  az keyvault secret show --vault-name ${{ secrets.VAULT_NAME }} --name ${{secrets.SECRET_NAME}} --query value -o tsv > $HOME/.kube/config
+                  chmod 600 $HOME/.kube/config
+
+            - name: Provision cluster IPs
+              run: kubectl apply -f cip-frontend.yml -f cip-backend.yml
+
+            - name: Provision ingress
+              run: kubectl apply -f Ingress.yml
+
+    provision_monitoring:
+        runs-on: ubuntu-latest
+        needs: provision_networking
+        defaults:
+            run:
+                working-directory: k8s/monitoring
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Load in kube_config
+              run: |
+                  az keyvault secret show --vault-name ${{ secrets.VAULT_NAME }} --name ${{secrets.SECRET_NAME}} --query value -o tsv > $HOME/.kube/config
+                  chmod 600 $HOME/.kube/config
+
+            - name: Provision prometheus
+              run: kubectl apply -f prometheus-config.yml -f prometheus-deployment.yml -f prometheus-server.yml
+
+            - name: Provision grafana
+              run: kubectl apply -f grafana/config-map.yml -f grafana/grafana.yml

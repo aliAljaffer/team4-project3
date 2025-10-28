@@ -2,17 +2,6 @@ name: Infrastructure Provisioning
 
 on:
   workflow_call:
-    inputs:
-      fe_image_tag:
-        description: "Frontend image tag"
-        type: string
-        required: true
-        default: "latest"
-      be_image_tag:
-        description: "Backend image tag"
-        type: string
-        required: true
-        default: "latest"
 
 permissions:
   id-token: write
@@ -26,15 +15,21 @@ jobs:
         working-directory: ./terraform
 
     env:
-      #  Variables 
+      #  Variables
       TF_VAR_location: ${{ vars.location }}
       TF_VAR_resource_group_name: ${{ vars.prefix }}-rg
-      TF_VAR_acr_name: ${{ vars.ACR_NAME }}
-      TF_VAR_aks_name: ${{ vars.AKS_NAME }}
-      TF_VAR_auther_name: ${{var.author_name}}
-      #  Secrets 
-      TF_VAR_sql_admin_user: ${{ secrets.SQL_ADMIN_USER }}
-      TF_VAR_sql_admin_password: ${{ secrets.SQL_ADMIN_PASSWORD }}
+      TF_VAR_author_name: ${{vars.author_name}}
+
+      #  Secrets
+      TF_VAR_psql_admin_username: ${{secrets.psql_admin_username}}
+      TF_VAR_psql_admin_password: ${{secrets.psql_admin_password}}
+      TF_VAR_subscription_id: ${{secrets.subscription_id}}
+
+      # Remote State Configs
+      storage_account_name: ${{secrets.storage_account_name}}
+      container_name: ${{secrets.container_name}}
+      key: ${{secrets.key}}
+      resource_group_name: ${{secrets.resource_group_name}}
 
     steps:
       - name: Checkout code
@@ -45,15 +40,28 @@ jobs:
         with:
           terraform_wrapper: false
 
-      - name: Azure Login 
+      - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: "Configure AWS Credentials"
+        uses: aws-actions/configure-aws-credentials@v5.1.0
+        with:
+          aws-region: "us-east-1"
+          aws-access-key-id: ${{secrets.aws_access_key}}
+          aws-secret-access-key: ${{secrets.aws_secret_key}}
+
+      - name: Prepare state.config file
+        run: |
+          echo "Creating config file.."
+          echo "storage_account_name=\"${{secrets.storage_account_name}}\"" >> state.config
+          echo "container_name=\"${{secrets.container_name}}\"" >> state.config
+          echo "key=\"${{secrets.key}}\"" >> state.config
+          echo "resource_group_name=\"${{secrets.resource_group_name}}\"" >> state.config
 
       - name: Terraform Init
         run: terraform init -backend-config="state.config"
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-
-
