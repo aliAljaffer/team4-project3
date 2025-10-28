@@ -157,11 +157,8 @@ app.get("/api/pets", async (req: Request, res: Response) => {
       const result = await trackDbQuery("get_pets_spatial", () =>
         pool.query(
           `
-        SELECT * FROM pets
-          WHERE ST_Contains(
-            ST_MakeEnvelope($1, $2, $3, $4, 4326),
-            geom
-          )
+          SELECT * FROM pets
+          WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
           ORDER BY "reportDate" DESC
       `,
           [
@@ -206,9 +203,7 @@ app.get("/api/map-data", async (req: Request, res: Response) => {
         trackDbQuery("get_map_pets_spatial", () =>
           pool.query(
             `SELECT * FROM pets
-             WHERE ST_Contains(
-               ST_MakeEnvelope($1, $2, $3, $4, 4326), geom
-             )
+             WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
              ORDER BY "reportDate" DESC`,
             [
               parseFloat(minLng as string),
@@ -221,9 +216,7 @@ app.get("/api/map-data", async (req: Request, res: Response) => {
         trackDbQuery("get_map_reports_spatial", () =>
           pool.query(
             `SELECT * FROM reports
-             WHERE ST_Contains(
-               ST_MakeEnvelope($1, $2, $3, $4, 4326), geom
-             )
+             WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
              ORDER BY "created_at" DESC`,
             [
               parseFloat(minLng as string),
@@ -234,7 +227,6 @@ app.get("/api/map-data", async (req: Request, res: Response) => {
           )
         ),
       ]);
-
       const duration = (Date.now() - start) / 1000;
       spatialQueryDuration.labels("map_data_bbox").observe(duration);
       spatialQueryResultCount.labels("pets_bbox").observe(pets.rows.length);
@@ -371,9 +363,7 @@ app.get("/api/reports", async (req: Request, res: Response) => {
       const result = await trackDbQuery("get_reports_spatial", () =>
         pool.query(
           `SELECT * FROM reports
-           WHERE ST_Contains(
-             ST_MakeEnvelope($1, $2, $3, $4, 4326), geom
-           )
+           WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
            ORDER BY "created_at" DESC`,
           [
             parseFloat(minLat as string),

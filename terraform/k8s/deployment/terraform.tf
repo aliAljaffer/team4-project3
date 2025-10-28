@@ -36,7 +36,7 @@ resource "kubernetes_deployment" "external_dns" {
             "--aws-zone-type=public",
             "--registry=txt",
             "--txt-owner-id=${var.az_aks_name}",
-            "--policy=sync"
+            "--policy=upsert-only"
           ]
 
           env {
