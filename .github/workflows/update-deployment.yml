@@ -30,6 +30,7 @@ jobs:
 
             - name: Load kubeconfig
               run: |
+                  mkdir -p $HOME/.kube
                   az keyvault secret show --vault-name ${{ secrets.VAULT_NAME }} --name ${{ secrets.SECRET_NAME }} --query value -o tsv > $HOME/.kube/config
                   chmod 600 $HOME/.kube/config
 
