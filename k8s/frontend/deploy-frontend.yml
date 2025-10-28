@@ -2,17 +2,12 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: cl-fe
-  namespace: 
+  namespace: team4project3
   labels:
     app: cl-fe
     tier: frontend
     version: v1.0
     name: cl-fe
-
-  #annotations for prometehus here
-
-  
-    
 spec:
   replicas: 3
   selector:
@@ -27,12 +22,14 @@ spec:
     metadata:
       labels:
         app: cl-fe
-        tier: frontend
-        version: v1.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
         - name: catus-locatus-fe
-          image: frontend-t4p3:latest
+          image: team4amazingregistry.azurecr.io/frontend-t4p3:latest
           ports:
             - containerPort: 8080
               protocol: TCP
