@@ -1,0 +1,55 @@
+name: Docker Build and Push - Both Frontend and backend
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        description: "Service to build (frontend or backend)"
+        type: string
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  docker_build_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Log in to ACR
+        run: az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Check if image already exists
+        id: check_image
+        run: |
+          if az acr repository show-tags --name ${{ vars.ACR_NAME }} --repository ${{ inputs.service }}-t4p3 --output tsv | grep -q "^${{ github.sha }}$"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Image ${{ inputs.service }}-t4p3:${{ github.sha }} already exists in ACR"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Image ${{ inputs.service }}-t4p3:${{ github.sha }} does not exist, will build"
+          fi
+
+      - name: Build and Push Docker Image
+        if: steps.check_image.outputs.exists == 'false'
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: ./${{ inputs.service }}
+          tags: |
+            ${{ vars.ACR_NAME }}.azurecr.io/${{ inputs.service }}-t4p3:latest
+            ${{ vars.ACR_NAME }}.azurecr.io/${{ inputs.service }}-t4p3:${{ github.sha }}
+
+      - name: Skip build notification
+        if: steps.check_image.outputs.exists == 'true'
+        run: |
+          echo "::notice::Skipping build - Image ${{ inputs.service }}-t4p3:${{ github.sha }} already exists in ACR"

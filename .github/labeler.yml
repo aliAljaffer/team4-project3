@@ -1,0 +1,33 @@
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: "frontend/**"
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: "backend/**"
+
+infrastructure-aws:
+  - changed-files:
+      - any-glob-to-any-file: "terraform/aws/**"
+
+infrastructure-azure:
+  - changed-files:
+      - any-glob-to-any-file: "terraform/azure/**"
+
+infrastructure-k8s:
+  - changed-files:
+      - any-glob-to-any-file: "terraform/k8s/**"
+
+kubernetes:
+  - changed-files:
+      - any-glob-to-any-file: "k8s/**"
+
+ci/cd:
+  - changed-files:
+      - any-glob-to-any-file: ".github/workflows/**"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**"

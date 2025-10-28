@@ -1,0 +1,50 @@
+name: Master CI pipeline
+
+on:
+    pull_request:
+        branches: [main]
+        paths:
+            - "backend/**"
+            - "frontend/**"
+
+jobs:
+    detect-changes:
+        runs-on: ubuntu-latest
+        outputs:
+            frontend: ${{ steps.filter.outputs.frontend }}
+            backend: ${{ steps.filter.outputs.backend }}
+            terraform: ${{ steps.filter.outputs.terraform }}
+            k8s: ${{ steps.filter.outputs.k8s }}
+        steps:
+            - name: Checkout codeeee
+              uses: actions/checkout@v5
+
+            - name: Detect Changes
+              uses: dorny/paths-filter@v3
+              id: filter
+              with:
+                  filters: |
+                      frontend:
+                          - 'frontend/**'
+                      backend:
+                          - 'backend/**'
+                      terraform:
+                          - 'terraform/**'
+                      k8s:
+                          - 'k8s/**'
+
+    build-frontend:
+        needs: detect-changes
+        if: needs.detect-changes.outputs.frontend == 'true'
+        uses: ./.github/workflows/docker-pipeline.yml
+        secrets: inherit
+        with:
+            service: frontend
+
+    build-backend:
+        needs: detect-changes
+        if: needs.detect-changes.outputs.backend == 'true'
+        uses: ./.github/workflows/docker-pipeline.yml
+        secrets: inherit
+        with:
+            service: backend

@@ -1,0 +1,41 @@
+name: Update Kubernetes Deployment
+
+on:
+    workflow_call:
+        inputs:
+            service:
+                description: "Service to update (frontend or backend)"
+                type: string
+                required: true
+            deployment_name:
+                description: "Kubernetes deployment name"
+                type: string
+                required: true
+
+permissions:
+    id-token: write
+    contents: read
+
+jobs:
+    update_deployment:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Load kubeconfig
+              run: |
+                  az keyvault secret show --vault-name ${{ secrets.VAULT_NAME }} --name ${{ secrets.SECRET_NAME }} --query value -o tsv > $HOME/.kube/config
+                  chmod 600 $HOME/.kube/config
+
+            - name: Update ${{ inputs.service }} Deployment Image
+              run: |
+                  kubectl set image deployment/${{ inputs.deployment_name }} \
+                    ${{ inputs.service }}-t4p3=${{ vars.ACR_NAME }}.azurecr.io/${{ inputs.service }}-t4p3:${{ github.sha }} \
+                    -n team4project3
+                  kubectl rollout status deployment/${{ inputs.deployment_name }} -n team4project3 --timeout=3m
