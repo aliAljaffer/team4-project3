@@ -25,6 +25,7 @@ spec:
         - name: backend-t4p3
           image: team4amazingregistry.azurecr.io/backend-t4p3:latest
           resources: {}
+          imagePullPolicy: Always
           ports:
             - containerPort: 4001
           envFrom:
