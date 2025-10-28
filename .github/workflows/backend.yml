@@ -1,4 +1,4 @@
-name: Frontend CI/CD
+name: Backend CI/CD
 
 on:
   workflow_call:
@@ -8,26 +8,22 @@ permissions:
   contents: read
 
 jobs:
-  frontend:
+  backend:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️ Checkout code
       - name: Checkout code
         uses: actions/checkout@v5
 
-      # 2️ Install dependencies
       - name: Install dependencies
         run: npm ci
         working-directory: frontend
 
-      # 3️ Login to Azure using credentials from GitHub Secrets
       - name: Login to Azure
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 4️ Login to Azure Container Registry (ACR)
       - name: Log in to ACR
         run: az acr login --name ${{ vars.ACR_NAME }}
 
@@ -35,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          context: ./frontend
+          context: ./backend
           tags: |
-            ${{ vars.ACR_NAME }}.azurecr.io/frontend-t4p3:latest
-            ${{ vars.ACR_NAME }}.azurecr.io/frontend-t4p3:${{ github.sha }}
+            ${{ vars.ACR_NAME }}.azurecr.io/backend-t4p3:latest
+            ${{ vars.ACR_NAME }}.azurecr.io/backend-t4p3:${{ github.sha }}

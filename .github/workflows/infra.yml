@@ -1,0 +1,59 @@
+name: Infrastructure Provisioning
+
+on:
+  workflow_call:
+    inputs:
+      fe_image_tag:
+        description: "Frontend image tag"
+        type: string
+        required: true
+        default: "latest"
+      be_image_tag:
+        description: "Backend image tag"
+        type: string
+        required: true
+        default: "latest"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform_provision:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    env:
+      #  Variables 
+      TF_VAR_location: ${{ vars.location }}
+      TF_VAR_resource_group_name: ${{ vars.prefix }}-rg
+      TF_VAR_acr_name: ${{ vars.ACR_NAME }}
+      TF_VAR_aks_name: ${{ vars.AKS_NAME }}
+      TF_VAR_auther_name: ${{var.author_name}}
+      #  Secrets 
+      TF_VAR_sql_admin_user: ${{ secrets.SQL_ADMIN_USER }}
+      TF_VAR_sql_admin_password: ${{ secrets.SQL_ADMIN_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Azure Login 
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config="state.config"
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+
