@@ -50,7 +50,7 @@ jobs:
         with:
           aws-region: "us-east-1"
           aws-access-key-id: ${{secrets.aws_access_key}}
-          aws-secret-access-key: ${{secrets.aws_secret_key}}
+          aws-secret-access-key: ${{secrets.AWS_SECRET_ACCESS_KEY}}
 
       - name: Prepare state.config file
         run: |
