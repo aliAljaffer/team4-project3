@@ -159,7 +159,6 @@ WHERE geom IS NULL AND "reportLongitude" IS NOT NULL AND "reportLatitude" IS NOT
 CREATE INDEX IF NOT EXISTS pets_geom_idx ON pets USING GIST(geom);
 CREATE INDEX IF NOT EXISTS reports_geom_idx ON reports USING GIST(geom);
 
--- Optional: Create triggers to auto-update geom when lat/lng changes
 CREATE OR REPLACE FUNCTION update_pets_geom() RETURNS TRIGGER AS $$
 BEGIN
   NEW.geom = ST_SetSRID(ST_MakePoint(NEW."position__longitude", NEW."position__latitude"), 4326);
