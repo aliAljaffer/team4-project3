@@ -70,6 +70,7 @@ app.use(
 );
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(metricsMiddleware);
 
 // Rate limiting
 const generalLimiter = rateLimit({
@@ -534,7 +535,6 @@ app.post(
     }
   }
 );
-app.use(metricsMiddleware);
 
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
