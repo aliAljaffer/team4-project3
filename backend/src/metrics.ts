@@ -39,7 +39,7 @@ export const httpErrorsTotal = new promClient.Counter({
 });
 
 ["GET", "POST", "PUT", "DELETE"].forEach((method) => {
-  httpErrorsTotal.labels(method, "/init", "500", "server_error").inc(0);
+  httpErrorsTotal.labels(method, "/init", "500").inc(0);
 });
 
 // Active requests (Saturation metric)
