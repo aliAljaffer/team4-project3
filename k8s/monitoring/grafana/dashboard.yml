@@ -299,7 +299,10 @@ data:
                   "mode": "off"
                 }
               },
+              "fieldMinMax": false,
               "mappings": [],
+              "min": 0,
+              "noValue": "0",
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
@@ -313,9 +316,34 @@ data:
                   }
                 ]
               },
-              "unit": "reqps"
+              "unit": "none"
             },
-            "overrides": []
+            "overrides": [
+              {
+                "__systemRef": "hideSeriesFrom",
+                "matcher": {
+                  "id": "byNames",
+                  "options": {
+                    "mode": "exclude",
+                    "names": [
+                      "5xx Errors"
+                    ],
+                    "prefix": "All except:",
+                    "readOnly": true
+                  }
+                },
+                "properties": [
+                  {
+                    "id": "custom.hideFrom",
+                    "value": {
+                      "legend": false,
+                      "tooltip": true,
+                      "viz": true
+                    }
+                  }
+                ]
+              }
+            ]
           },
           "gridPos": {
             "h": 8,
@@ -341,7 +369,8 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "sum(rate(cl_http_errors_total[5m])) by (status_code)",
+              "exemplar": false,
+              "expr": "sum by (method, route) (rate(cl_http_errors_total[5m]))\n",
               "format": "time_series",
               "instant": false,
               "legendFormat": "5xx Errors",
@@ -349,7 +378,7 @@ data:
               "refId": "A"
             }
           ],
-          "title": "HTTP Error Rate",
+          "title": "HTTP 5xx Error Count [GET, POST, DELETE, PUT]",
           "type": "timeseries"
         },
         {

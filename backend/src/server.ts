@@ -49,7 +49,7 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false, // Azure requires SSL
   },
-  max: 10,
+  max: 40,
   idleTimeoutMillis: 10000,
   connectionTimeoutMillis: 10000,
   keepAlive: true,
@@ -75,7 +75,7 @@ app.use(metricsMiddleware);
 // Rate limiting
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 300_000,
+  max: 1000,
   message: "Too many requests from this IP, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
