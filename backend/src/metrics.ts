@@ -33,7 +33,7 @@ export const httpRequestTotal = new promClient.Counter({
 // Error Rate - Counter for errors
 export const httpErrorsTotal = new promClient.Counter({
   name: "cl_http_errors_total",
-  help: "Total number of HTTP errors (4xx and 5xx)",
+  help: "Total number of HTTP errors (5xx)",
   labelNames: ["method", "route", "status_code", "error_type"],
   registers: [register],
 });
@@ -212,8 +212,8 @@ export function metricsMiddleware(
     // Increment total requests
     httpRequestTotal.labels(method, route, statusCode).inc();
 
-    // Track errors (4xx and 5xx)
-    if (res.statusCode >= 400) {
+    // Track errors (5xx)
+    if (res.statusCode >= 500) {
       const errorType = res.statusCode >= 500 ? "server_error" : "client_error";
       httpErrorsTotal.labels(method, route, statusCode, errorType).inc();
     }
