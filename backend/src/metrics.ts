@@ -34,8 +34,12 @@ export const httpRequestTotal = new promClient.Counter({
 export const httpErrorsTotal = new promClient.Counter({
   name: "cl_http_errors_total",
   help: "Total number of HTTP errors (4xx and 5xx)",
-  labelNames: ["method", "route", "status_code", "error_type"],
+  labelNames: ["method", "route", "status_code"],
   registers: [register],
+});
+
+["GET", "POST", "PUT", "DELETE"].forEach((method) => {
+  httpErrorsTotal.labels(method, "/init", "500", "server_error").inc(0);
 });
 
 // Active requests (Saturation metric)
@@ -213,9 +217,8 @@ export function metricsMiddleware(
     httpRequestTotal.labels(method, route, statusCode).inc();
 
     // Track errors (4xx and 5xx)
-    if (res.statusCode >= 400) {
-      const errorType = res.statusCode >= 500 ? "server_error" : "client_error";
-      httpErrorsTotal.labels(method, route, statusCode, errorType).inc();
+    if (res.statusCode >= 500) {
+      httpErrorsTotal.labels(method, route, statusCode).inc();
     }
 
     // Decrement active requests
