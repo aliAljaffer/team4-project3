@@ -21,7 +21,7 @@ resource "kubernetes_manifest" "secret_provider_class" {
 
         tenantId = data.azurerm_client_config.current.tenant_id
       }
-      # Optional: Sync to K8s secret
+
       secretObjects = [
         {
           secretName = "catus-locatus-secrets"
