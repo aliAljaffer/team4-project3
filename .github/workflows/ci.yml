@@ -50,3 +50,22 @@ jobs:
         secrets: inherit
         with:
             service: backend
+
+    terraform-plan:
+        needs: detect-changes
+        if: needs.detect-changes.outputs.terraform == 'true'
+        uses: ./.github/workflows/infra.yml
+        secrets: inherit
+        with:
+            skip_apply: true
+
+    terraform-status:
+        needs: terraform-plan
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check Terraform Plan Status
+              run: |
+                  if [[ "${{ needs.terraform-plan.outputs.status }}" != "success" ]]; then
+                    echo "Terraform plan did not succeed. Please review the logs!"
+                    exit 1
+                  fi

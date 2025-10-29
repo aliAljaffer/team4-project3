@@ -2,7 +2,12 @@ name: Infrastructure Provisioning
 
 on:
   workflow_call:
-
+    inputs:
+      skip_apply:
+        description: "Skips the apply step, for use with pr"
+        type: boolean
+        required: true
+        default: false
 permissions:
   id-token: write
   contents: read
@@ -63,5 +68,11 @@ jobs:
       - name: Terraform Init
         run: terraform init -backend-config="state.config"
 
+      - name: Terraform plan
+        if: inputs.skip_apply == true
+        id: plan
+        run: terraform plan -out=tfplan > /dev/null 2>&1
+
       - name: Terraform Apply
+        if: inputs.skip_apply == false
         run: terraform apply -auto-approve

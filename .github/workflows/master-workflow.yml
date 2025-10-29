@@ -60,6 +60,8 @@ jobs:
     if: needs.detect-changes.outputs.terraform == 'true'
     uses: ./.github/workflows/infra.yml
     secrets: inherit
+    with:
+      skip_apply: false
 
   update-frontend-deployment:
     needs: [detect-changes, build-frontend]
