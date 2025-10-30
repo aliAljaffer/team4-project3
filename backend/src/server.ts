@@ -79,6 +79,7 @@ const generalLimiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path === "/api/map-data", // Skip for map endpoint
   handler: (_, res) => {
     rateLimitHits.labels("general").inc();
     res.status(429).json({
@@ -99,12 +100,18 @@ const uploadLimiter = rateLimit({
   },
 });
 
-app.use("/api/", generalLimiter);
-
 const mapLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 120, // 120 requests per minute
+  handler: (_, res) => {
+    rateLimitHits.labels("map").inc();
+    res.status(429).json({
+      error: "Too many map requests, please try again later.",
+    });
+  },
 });
+
+app.use("/api/", generalLimiter);
 
 // Multer configuration for file uploads
 const upload = multer({
