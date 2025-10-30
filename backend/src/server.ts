@@ -162,10 +162,10 @@ app.get("/api/pets", async (req: Request, res: Response) => {
           ORDER BY "reportDate" DESC
       `,
           [
-            parseFloat(minLat as string),
-            parseFloat(maxLat as string),
             parseFloat(minLng as string),
+            parseFloat(minLat as string),
             parseFloat(maxLng as string),
+            parseFloat(maxLat as string),
           ]
         )
       );
@@ -366,10 +366,10 @@ app.get("/api/reports", async (req: Request, res: Response) => {
            WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
            ORDER BY "created_at" DESC`,
           [
-            parseFloat(minLat as string),
-            parseFloat(maxLat as string),
             parseFloat(minLng as string),
+            parseFloat(minLat as string),
             parseFloat(maxLng as string),
+            parseFloat(maxLat as string),
           ]
         )
       );
