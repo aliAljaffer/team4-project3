@@ -79,6 +79,7 @@ const generalLimiter = rateLimit({
   message: "Too many requests from this IP, please try again later.",
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.path === "/api/map-data", // Skip for map endpoint
   handler: (_, res) => {
     rateLimitHits.labels("general").inc();
     res.status(429).json({
@@ -95,6 +96,17 @@ const uploadLimiter = rateLimit({
     rateLimitHits.labels("upload").inc();
     res.status(429).json({
       error: "Too many upload requests, please try again later.",
+    });
+  },
+});
+
+const mapLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 120, // 120 requests per minute
+  handler: (_, res) => {
+    rateLimitHits.labels("map").inc();
+    res.status(429).json({
+      error: "Too many map requests, please try again later.",
     });
   },
 });
@@ -147,7 +159,7 @@ app.get("/api/metrics", async (_req: Request, res: Response) => {
 });
 
 // GET all pets
-app.get("/api/pets", async (req: Request, res: Response) => {
+app.get("/api/pets", mapLimiter, async (req: Request, res: Response) => {
   try {
     const { minLat, maxLat, minLng, maxLng } = req.query;
 
@@ -162,10 +174,10 @@ app.get("/api/pets", async (req: Request, res: Response) => {
           ORDER BY "reportDate" DESC
       `,
           [
-            parseFloat(minLat as string),
-            parseFloat(maxLat as string),
             parseFloat(minLng as string),
+            parseFloat(minLat as string),
             parseFloat(maxLng as string),
+            parseFloat(maxLat as string),
           ]
         )
       );
@@ -189,7 +201,7 @@ app.get("/api/pets", async (req: Request, res: Response) => {
   return null;
 });
 // GET map-data (pets and reports!)
-app.get("/api/map-data", async (req: Request, res: Response) => {
+app.get("/api/map-data", mapLimiter, async (req: Request, res: Response) => {
   try {
     const { minLat, maxLat, minLng, maxLng } = req.query;
     // Check if bounding box is provided
@@ -352,7 +364,7 @@ app.post("/api/pets", async (req: Request, res: Response) => {
 });
 
 // GET all reports
-app.get("/api/reports", async (req: Request, res: Response) => {
+app.get("/api/reports", mapLimiter, async (req: Request, res: Response) => {
   try {
     const { minLat, maxLat, minLng, maxLng } = req.query;
 
@@ -366,10 +378,10 @@ app.get("/api/reports", async (req: Request, res: Response) => {
            WHERE geom && ST_MakeEnvelope($1, $2, $3, $4, 4326)
            ORDER BY "created_at" DESC`,
           [
-            parseFloat(minLat as string),
-            parseFloat(maxLat as string),
             parseFloat(minLng as string),
+            parseFloat(minLat as string),
             parseFloat(maxLng as string),
+            parseFloat(maxLat as string),
           ]
         )
       );

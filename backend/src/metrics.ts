@@ -195,6 +195,11 @@ export function metricsMiddleware(
   res: Response,
   next: NextFunction
 ) {
+  const path = req.path;
+  if (path === "/api/metrics" || path === "/api/health") {
+    return next();
+  }
+
   const start = Date.now();
   const method = req.method;
   const route = req.route?.path || req.path;
