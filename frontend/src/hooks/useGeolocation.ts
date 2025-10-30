@@ -14,16 +14,7 @@ export function useGeolocation() {
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
   function getPosition(isInForm: boolean = false) {
-    if (window.location.host != "localhost") {
-      const lat = Number(DEFAULT_POINT[0]) + Math.random() * -0.6575;
-      const lng = Number(DEFAULT_POINT[1]) + Math.random() * -0.1125;
 
-      setPosition({ lat, lng });
-      if (!isInForm) {
-        navigate(`${APP_ROUTE}?lat=${lat}&lng=${lng}`);
-      }
-      setIsLoading(false);
-    } else {
       if (!navigator.geolocation)
         return setError("Your browser does not support geolocation");
       setIsLoading(true);
@@ -45,7 +36,7 @@ export function useGeolocation() {
           setIsLoading(false);
         },
       );
-    }
+
   }
   return { isLoading, position, error, getPosition };
 }
