@@ -101,6 +101,11 @@ const uploadLimiter = rateLimit({
 
 app.use("/api/", generalLimiter);
 
+const mapLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 120, // 120 requests per minute
+});
+
 // Multer configuration for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -147,7 +152,7 @@ app.get("/api/metrics", async (_req: Request, res: Response) => {
 });
 
 // GET all pets
-app.get("/api/pets", async (req: Request, res: Response) => {
+app.get("/api/pets", mapLimiter, async (req: Request, res: Response) => {
   try {
     const { minLat, maxLat, minLng, maxLng } = req.query;
 
@@ -189,7 +194,7 @@ app.get("/api/pets", async (req: Request, res: Response) => {
   return null;
 });
 // GET map-data (pets and reports!)
-app.get("/api/map-data", async (req: Request, res: Response) => {
+app.get("/api/map-data", mapLimiter, async (req: Request, res: Response) => {
   try {
     const { minLat, maxLat, minLng, maxLng } = req.query;
     // Check if bounding box is provided
@@ -352,7 +357,7 @@ app.post("/api/pets", async (req: Request, res: Response) => {
 });
 
 // GET all reports
-app.get("/api/reports", async (req: Request, res: Response) => {
+app.get("/api/reports", mapLimiter, async (req: Request, res: Response) => {
   try {
     const { minLat, maxLat, minLng, maxLng } = req.query;
 
