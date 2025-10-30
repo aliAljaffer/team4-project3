@@ -1,4 +1,4 @@
-import { APP_ROUTE, DEFAULT_POINT } from "@/utils/helpers";
+import { APP_ROUTE } from "@/utils/helpers";
 import { LatLngExpression } from "leaflet";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
